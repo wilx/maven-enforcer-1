@@ -1,5 +1,8 @@
 package org.apache.maven.plugins.enforcer;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -22,15 +25,13 @@ package org.apache.maven.plugins.enforcer;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleException;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleHelper;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilderException;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluationException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Abstract Rule for banning dependencies.
@@ -52,11 +53,11 @@ public abstract class AbstractBanDependencies
         throws EnforcerRuleException
     {
 
-        // get the project
-        MavenProject project = null;
+        // get the session
+        MavenSession session = null;
         try
         {
-            project = (MavenProject) helper.evaluate( "${project}" );
+            session = (MavenSession) helper.evaluate( "${session}" );
         }
         catch ( ExpressionEvaluationException eee )
         {
@@ -69,21 +70,11 @@ public abstract class AbstractBanDependencies
         }
         catch ( ComponentLookupException e )
         {
-            // real cause is probably that one of the Maven3 graph builder could not be initiated and fails with a
-            // ClassNotFoundException
-            try
-            {
-                graphBuilder =
-                    (DependencyGraphBuilder) helper.getComponent( DependencyGraphBuilder.class.getName(), "maven2" );
-            }
-            catch ( ComponentLookupException e1 )
-            {
                 throw new EnforcerRuleException( "Unable to lookup DependencyGraphBuilder: ", e );
-            }
         }
 
         // get the correct list of dependencies
-        Set<Artifact> dependencies = getDependenciesToCheck( project );
+        Set<Artifact> dependencies = getDependenciesToCheck( session );
 
         // look for banned dependencies
         Set<Artifact> foundExcludes = checkDependencies( dependencies, helper.getLog() );
@@ -114,12 +105,12 @@ public abstract class AbstractBanDependencies
         return "Found Banned Dependency: " + artifact.getId() + "\n";
     }
 
-    protected Set<Artifact> getDependenciesToCheck( MavenProject project )
+    protected Set<Artifact> getDependenciesToCheck( MavenSession session )
     {
         Set<Artifact> dependencies = null;
         try
         {
-            DependencyNode node = graphBuilder.buildDependencyGraph( project, null );
+            DependencyNode node = graphBuilder.buildDependencyGraph( session.getProjectBuildingRequest(), null );
             if ( searchTransitive )
             {
                 dependencies = getAllDescendants( node );

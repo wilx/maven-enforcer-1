@@ -24,20 +24,18 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.factory.ArtifactFactory;
-import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.ArtifactCollector;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.enforcer.rule.api.EnforcerRule;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleException;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleHelper;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.enforcer.utils.DependencyVersionMap;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.shared.dependency.tree.DependencyNode;
-import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
-import org.apache.maven.shared.dependency.tree.DependencyTreeBuilderException;
+import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
+import org.apache.maven.shared.dependency.graph.DependencyGraphBuilderException;
+import org.apache.maven.shared.dependency.graph.DependencyNode;
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluationException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 
@@ -74,17 +72,13 @@ public class DependencyConvergence
     {
         try
         {
-            MavenProject project = (MavenProject) helper.evaluate( "${project}" );
-            DependencyTreeBuilder dependencyTreeBuilder =
-                (DependencyTreeBuilder) helper.getComponent( DependencyTreeBuilder.class );
-            ArtifactRepository repository = (ArtifactRepository) helper.evaluate( "${localRepository}" );
-            ArtifactFactory factory = (ArtifactFactory) helper.getComponent( ArtifactFactory.class );
-            ArtifactMetadataSource metadataSource =
-                (ArtifactMetadataSource) helper.getComponent( ArtifactMetadataSource.class );
-            ArtifactCollector collector = (ArtifactCollector) helper.getComponent( ArtifactCollector.class );
+            MavenSession session = (MavenSession) helper.evaluate( "${session}" );
+            DependencyGraphBuilder dependencyTreeBuilder =
+                (DependencyGraphBuilder) helper.getComponent( DependencyGraphBuilder.class );
             ArtifactFilter filter = null; // we need to evaluate all scopes
-            DependencyNode node = dependencyTreeBuilder.buildDependencyTree( project, repository, factory,
-                                                                             metadataSource, filter, collector );
+            
+            DependencyNode node = dependencyTreeBuilder.buildDependencyGraph(session.getProjectBuildingRequest(), filter );
+
             return node;
         }
         catch ( ExpressionEvaluationException e )
@@ -95,7 +89,7 @@ public class DependencyConvergence
         {
             throw new EnforcerRuleException( "Unable to lookup a component " + e.getLocalizedMessage(), e );
         }
-        catch ( DependencyTreeBuilderException e )
+        catch ( DependencyGraphBuilderException e )
         {
             throw new EnforcerRuleException( "Could not build dependency tree " + e.getLocalizedMessage(), e );
         }

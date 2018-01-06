@@ -26,6 +26,7 @@ import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException
 import org.apache.maven.enforcer.rule.api.EnforcerRule;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleException;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleHelper;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugins.enforcer.utils.ArtifactMatcher;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
@@ -157,8 +158,8 @@ public class BanTransitiveDependencies
 
         try
         {
-            MavenProject project = (MavenProject) helper.evaluate( "${project}" );
-            rootNode = createDependencyGraphBuilder().buildDependencyGraph( project, null );
+            MavenSession session = (MavenSession) helper.evaluate( "${session}" );
+            rootNode = createDependencyGraphBuilder().buildDependencyGraph( session.getProjectBuildingRequest(), null );
         }
         catch ( Exception e )
         {

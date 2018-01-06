@@ -37,7 +37,6 @@ import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
-import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleException;
@@ -162,12 +161,6 @@ public class RequirePluginVersions
     /** The lifecycles. */
     private Collection<Lifecycle> lifecycles;
 
-    /** The factory. */
-    ArtifactFactory factory;
-
-    /** The resolver. */
-    ArtifactResolver resolver;
-
     /** The local. */
     ArtifactRepository local;
 
@@ -217,8 +210,6 @@ public class RequirePluginVersions
 
             session = (MavenSession) helper.evaluate( "${session}" );
             pluginManager = (PluginManager) helper.getComponent( PluginManager.class );
-            factory = (ArtifactFactory) helper.getComponent( ArtifactFactory.class );
-            resolver = (ArtifactResolver) helper.getComponent( ArtifactResolver.class );
             local = (ArtifactRepository) helper.evaluate( "${localRepository}" );
             remoteRepositories = project.getRemoteArtifactRepositories();
 
