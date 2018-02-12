@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang3.SystemUtils;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleException;
@@ -40,11 +39,13 @@ import org.codehaus.plexus.util.StringUtils;
 public class RequireJavaVersion
     extends AbstractVersionEnforcer
 {
+    private boolean jep322Version = false;
+
     @Override
     public void execute( EnforcerRuleHelper helper )
         throws EnforcerRuleException
     {
-        String javaVersion = SystemUtils.JAVA_VERSION;
+        String javaVersion = System.getProperty( "java.version" );
         Log log = helper.getLog();
 
         log.debug( "Detected Java String: '" + javaVersion + "'" );
@@ -59,6 +60,11 @@ public class RequireJavaVersion
 
         enforceVersion( helper.getLog(), "JDK", getVersion(), detectedJdkVersion );
     }
+
+    // http://openjdk.java.net/jeps/322
+    // RegEx from JEP322: [1-9][0-9]*((\.0)*\.[1-9][0-9]*)*
+    // $FEATURE.$INTERIM.$UPDATE.$PATCH
+    //
 
     /**
      * Converts a jdk string from 1.5.0-11b12 to a single 3 digit version like 1.5.0-11

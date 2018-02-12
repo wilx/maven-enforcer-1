@@ -22,7 +22,6 @@ package org.apache.maven.plugins.enforcer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.apache.commons.lang3.SystemUtils;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleException;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleHelper;
 import org.apache.maven.plugin.logging.Log;
@@ -30,19 +29,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
 
 /**
  * The Class RequireJavaVersionTest
  *
  * @author Karl Heinz Marbaise <a href="mailto:khmarbaise@apache.org">khmarbaise@apache.org</a>
  */
-@RunWith( PowerMockRunner.class )
-@PrepareForTest( { SystemUtils.class } )
-public class RequireJavaVesionTest
+public class RequireJavaVersionTest
 {
 
     private EnforcerRuleHelper helper;
@@ -52,11 +45,12 @@ public class RequireJavaVesionTest
     @Before
     public void before()
     {
+        System.clearProperty( "java.version" );
 
         helper = mock( EnforcerRuleHelper.class );
-
         Log log = mock( Log.class );
         when( helper.getLog() ).thenReturn( log );
+        rule = new RequireJavaVersion();
 
     }
 
@@ -67,9 +61,7 @@ public class RequireJavaVesionTest
     public void first()
         throws EnforcerRuleException
     {
-        Whitebox.setInternalState( SystemUtils.class, "JAVA_VERSION", "1.4" );
-
-        rule = new RequireJavaVersion();
+        System.setProperty( "java.version", "1.4" );
         rule.setVersion( "1.5" );
 
         exception.expect( EnforcerRuleException.class );
@@ -81,9 +73,8 @@ public class RequireJavaVesionTest
     public void second()
         throws EnforcerRuleException
     {
-        Whitebox.setInternalState( SystemUtils.class, "JAVA_VERSION", "1.8" );
+        System.setProperty( "java.version", "1.8" );
 
-        rule = new RequireJavaVersion();
         rule.setVersion( "1.9" );
         exception.expect( EnforcerRuleException.class );
         exception.expectMessage( "Detected JDK Version: 1.8 is not in the allowed range 1.9." );
@@ -94,9 +85,8 @@ public class RequireJavaVesionTest
     public void third()
         throws EnforcerRuleException
     {
-        Whitebox.setInternalState( SystemUtils.class, "JAVA_VERSION", "9.0.4" );
+        System.setProperty( "java.version", "9.0.4" );
 
-        rule = new RequireJavaVersion();
         rule.setVersion( "9.0.5" );
         exception.expect( EnforcerRuleException.class );
         exception.expectMessage( "Detected JDK Version: 9.0.4 is not in the allowed range 9.0.5." );
@@ -107,12 +97,11 @@ public class RequireJavaVesionTest
     public void forth()
         throws EnforcerRuleException
     {
-        Whitebox.setInternalState( SystemUtils.class, "JAVA_VERSION", "1.8.0_b192" );
+        System.setProperty( "java.version", "1.8.0_b192" );
 
-        rule = new RequireJavaVersion();
         rule.setVersion( "8" );
         exception.expect( EnforcerRuleException.class );
-        exception.expectMessage( "Detected JDK Version: 9.0.4 is not in the allowed range 9.0.5." );
+        exception.expectMessage( "Detected JDK Version: 1.8.0-192 is not in the allowed range 8." );
         rule.execute( helper );
     }
 

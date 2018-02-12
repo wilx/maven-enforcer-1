@@ -67,7 +67,6 @@
     <maven.version>3.0</maven.version>
     <maven.site.path>enforcer-archives/enforcer-LATEST</maven.site.path>
 	  <surefire.version>2.21.0</surefire.version>
-    <powermock.version>1.7.1</powermock.version>
   </properties>
 
   <dependencyManagement>
@@ -132,22 +131,9 @@
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>org.powermock</groupId>
-        <artifactId>powermock-module-junit4</artifactId>
-        <version>${powermock.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.powermock</groupId>
-        <artifactId>powermock-api-mockito2</artifactId>
-        <version>${powermock.version}</version>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
-        <version>3.7</version> <!-- commons-lang3 >= 3.6 require at least Java 7 -->
+        <version>3.5</version> <!-- commons-lang3 >= 3.6 require at least Java 7 -->
       </dependency>
       <dependency>
         <groupId>commons-codec</groupId>
