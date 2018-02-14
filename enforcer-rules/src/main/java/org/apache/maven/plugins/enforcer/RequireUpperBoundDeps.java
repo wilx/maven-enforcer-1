@@ -34,7 +34,9 @@ import org.apache.maven.enforcer.rule.api.EnforcerRuleException;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleHelper;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilderException;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
@@ -88,7 +90,7 @@ public class RequireUpperBoundDeps
     // CHECKSTYLE_OFF: LineLength
     /**
      * Uses the {@link EnforcerRuleHelper} to populate the values of the
-     * {@link DependencyTreeBuilder#buildDependencyTree(MavenProject, ArtifactRepository, ArtifactFactory, ArtifactMetadataSource, ArtifactFilter, ArtifactCollector)}
+     * {@link DependencyGraphBuilder#buildDependencyGraph(org.apache.maven.project.ProjectBuildingRequest, ArtifactFilter)}
      * factory method. <br/>
      * This method simply exists to hide all the ugly lookup that the {@link EnforcerRuleHelper} has to do.
      * 
@@ -103,11 +105,15 @@ public class RequireUpperBoundDeps
         try
         {
             MavenSession session = (MavenSession) helper.evaluate( "${session}" );
+            MavenProject project = (MavenProject) helper.evaluate( "${project}" );
+            ProjectBuildingRequest request = new DefaultProjectBuildingRequest( session.getProjectBuildingRequest() );
+            request.setProject( project );
+
             DependencyGraphBuilder dependencyTreeBuilder =
                 (DependencyGraphBuilder) helper.getComponent( DependencyGraphBuilder.class );
             ArtifactFilter filter = null; // we need to evaluate all scopes
             
-            DependencyNode node = dependencyTreeBuilder.buildDependencyGraph(session.getProjectBuildingRequest(), filter );
+            DependencyNode node = dependencyTreeBuilder.buildDependencyGraph(request, filter );
 
             return node;
         }

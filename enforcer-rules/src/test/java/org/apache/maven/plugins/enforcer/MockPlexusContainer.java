@@ -27,6 +27,7 @@ import java.util.Map;
 
 import org.apache.maven.execution.RuntimeInformation;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.settings.RuntimeInfo;
 import org.codehaus.classworlds.ClassRealm;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.PlexusContainerException;

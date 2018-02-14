@@ -27,6 +27,7 @@ import org.apache.maven.enforcer.rule.api.EnforcerRuleException;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleHelper;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilderException;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
@@ -74,7 +75,7 @@ public abstract class AbstractBanDependencies
         }
 
         // get the correct list of dependencies
-        Set<Artifact> dependencies = getDependenciesToCheck( session );
+        Set<Artifact> dependencies = getDependenciesToCheck( session.getProjectBuildingRequest() );
 
         // look for banned dependencies
         Set<Artifact> foundExcludes = checkDependencies( dependencies, helper.getLog() );
@@ -105,12 +106,12 @@ public abstract class AbstractBanDependencies
         return "Found Banned Dependency: " + artifact.getId() + "\n";
     }
 
-    protected Set<Artifact> getDependenciesToCheck( MavenSession session )
+    protected Set<Artifact> getDependenciesToCheck( ProjectBuildingRequest request)
     {
         Set<Artifact> dependencies = null;
         try
         {
-            DependencyNode node = graphBuilder.buildDependencyGraph( session.getProjectBuildingRequest(), null );
+            DependencyNode node = graphBuilder.buildDependencyGraph( request, null );
             if ( searchTransitive )
             {
                 dependencies = getAllDescendants( node );

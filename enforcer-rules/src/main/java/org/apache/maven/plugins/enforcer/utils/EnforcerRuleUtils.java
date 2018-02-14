@@ -42,7 +42,10 @@ public class EnforcerRuleUtils
 
     /** The factory. */
     ArtifactFactory factory;
-
+    
+    /** The resolver. */
+    ArtifactResolver resolver;
+    
     /** The local. */
     ArtifactRepository local;
 
