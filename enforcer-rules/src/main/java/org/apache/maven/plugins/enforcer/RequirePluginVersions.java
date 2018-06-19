@@ -79,7 +79,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 public class RequirePluginVersions
     extends AbstractNonCacheableEnforcerRule
 {
-    
+
     private EnforcerRuleHelper helper;
 
     /**
@@ -234,6 +234,12 @@ public class RequirePluginVersions
             allPlugins =
                 removeUncheckedPlugins( combineUncheckedPlugins( unCheckedPlugins, unCheckedPluginList ), allPlugins );
 
+            for ( Plugin plugin : allPlugins )
+            {
+                log.debug( "allPlugins(): " + plugin.getGroupId() + ":" + plugin.getArtifactId() + ":"
+                    + plugin.getVersion() );
+            }
+
             // there's nothing to do here
             if ( allPlugins.isEmpty() )
             {
@@ -248,12 +254,19 @@ public class RequirePluginVersions
             // get all the plugins that are mentioned in the pom (and parents)
             List<PluginWrapper> pluginWrappers = getAllPluginEntries( project );
 
+            for ( PluginWrapper pluginWrapper : pluginWrappers )
+            {
+                log.debug( "pluginWrappers: " + pluginWrapper.getGroupId() + ":" + pluginWrapper.getArtifactId() + ":"
+                    + pluginWrapper.getVersion() + " source:" + pluginWrapper.getSource() );
+            }
             // now look for the versions that aren't valid and add to a list.
             List<Plugin> failures = new ArrayList<Plugin>();
             for ( Plugin plugin : allPlugins )
             {
                 if ( !hasValidVersionSpecified( helper, plugin, pluginWrappers ) )
                 {
+                    log.debug( "hasValidVersionSpecified(): " + plugin.getGroupId() + ":" + plugin.getArtifactId() + ":"
+                        + plugin.getVersion() );
                     failures.add( plugin );
                 }
             }
@@ -391,7 +404,8 @@ public class RequirePluginVersions
      * @return List of unchecked plugins.
      */
     // CHECKSTYLE_OFF: LineLength
-    public Collection<String> combineUncheckedPlugins( Collection<String> uncheckedPlugins, String uncheckedPluginsList )
+    public Collection<String> combineUncheckedPlugins( Collection<String> uncheckedPlugins,
+                                                       String uncheckedPluginsList )
     // CHECKSTYLE_ON: LineLength
     {
         // if the comma list is empty, then there's nothing to do here.
@@ -545,9 +559,8 @@ public class RequirePluginVersions
     {
 
         List<ArtifactRepository> pluginRepositories = project.getPluginArtifactRepositories();
-        Artifact artifact =
-            factory.createPluginArtifact( plugin.getGroupId(), plugin.getArtifactId(),
-                                          VersionRange.createFromVersion( "LATEST" ) );
+        Artifact artifact = factory.createPluginArtifact( plugin.getGroupId(), plugin.getArtifactId(),
+                                                          VersionRange.createFromVersion( "LATEST" ) );
 
         try
         {
@@ -556,11 +569,11 @@ public class RequirePluginVersions
         }
         catch ( ArtifactResolutionException e )
         {
-            //What does this mean?
+            // What does this mean?
         }
         catch ( ArtifactNotFoundException e )
         {
-            //What does this mean?
+            // What does this mean?
         }
 
         return plugin;
@@ -594,6 +607,8 @@ public class RequirePluginVersions
                 try
                 {
                     Lifecycle lifecycle = getLifecycleForPhase( lifecyclePhase );
+                    log.debug( "getBoundPlugins(): " + project.getId() + " " + lifecyclePhase + " "
+                        + lifecycle.getId() );
                     allPlugins.addAll( getAllPlugins( project, lifecycle ) );
                 }
                 catch ( BuildFailureException e )
@@ -782,6 +797,7 @@ public class RequirePluginVersions
                 List<String> phases = lifecycle.getPhases();
                 for ( String phase : phases )
                 {
+                    log.debug( "getPhaseToLifecycleMap(): phase: " + phase );
                     if ( phaseToLifecycleMap.containsKey( phase ) )
                     {
                         Lifecycle prevLifecycle = (Lifecycle) phaseToLifecycleMap.get( phase );
@@ -834,9 +850,8 @@ public class RequirePluginVersions
         String packaging = project.getPackaging();
         Map<String, String> mappings = null;
 
-        LifecycleMapping m =
-            (LifecycleMapping) findExtension( project, LifecycleMapping.ROLE, packaging, session.getSettings(),
-                                              session.getLocalRepository() );
+        LifecycleMapping m = (LifecycleMapping) findExtension( project, LifecycleMapping.ROLE, packaging,
+                                                               session.getSettings(), session.getLocalRepository() );
         if ( m != null )
         {
             mappings = m.getPhases( lifecycle.getId() );
@@ -855,8 +870,8 @@ public class RequirePluginVersions
             {
                 if ( defaultMappings == null )
                 {
-                    throw new LifecycleExecutionException( "Cannot find lifecycle mapping for packaging: \'"
-                        + packaging + "\'.", e );
+                    throw new LifecycleExecutionException( "Cannot find lifecycle mapping for packaging: \'" + packaging
+                        + "\'.", e );
                 }
             }
         }
@@ -892,9 +907,8 @@ public class RequirePluginVersions
         String packaging = project.getPackaging();
         List<String> optionalMojos = null;
 
-        LifecycleMapping m =
-            (LifecycleMapping) findExtension( project, LifecycleMapping.ROLE, packaging, session.getSettings(),
-                                              session.getLocalRepository() );
+        LifecycleMapping m = (LifecycleMapping) findExtension( project, LifecycleMapping.ROLE, packaging,
+                                                               session.getSettings(), session.getLocalRepository() );
 
         if ( m != null )
         {
@@ -911,7 +925,7 @@ public class RequirePluginVersions
             catch ( ComponentLookupException e )
             {
                 log.debug( "Error looking up lifecycle mapping to retrieve optional mojos. Lifecycle ID: "
-                               + lifecycle.getId() + ". Error: " + e.getMessage(), e );
+                    + lifecycle.getId() + ". Error: " + e.getMessage(), e );
             }
         }
 
@@ -1045,13 +1059,13 @@ public class RequirePluginVersions
         // get all the pom models
 
         List<Model> models = new ArrayList<Model>();
-        
+
         List<MavenProject> sortedProjects = session.getProjectDependencyGraph().getSortedProjects();
         for ( MavenProject mavenProject : sortedProjects )
         {
             models.add( mavenProject.getOriginalModel() );
         }
-                        
+
         // now find all the plugin entries, either in
         // build.plugins or build.pluginManagement.plugins, profiles.plugins and reporting
         for ( Model model : models )
@@ -1059,8 +1073,8 @@ public class RequirePluginVersions
             try
             {
                 List<Plugin> modelPlugins = model.getBuild().getPlugins();
-                plugins.addAll( PluginWrapper.addAll( utils.resolvePlugins( modelPlugins ), model.getId()
-                    + ".build.plugins" ) );
+                plugins.addAll( PluginWrapper.addAll( utils.resolvePlugins( modelPlugins ),
+                                                      model.getId() + ".build.plugins" ) );
             }
             catch ( NullPointerException e )
             {
@@ -1071,8 +1085,8 @@ public class RequirePluginVersions
             {
                 List<ReportPlugin> modelReportPlugins = model.getReporting().getPlugins();
                 // add the reporting plugins
-                plugins.addAll( PluginWrapper.addAll( utils.resolveReportPlugins( modelReportPlugins ), model.getId()
-                    + ".reporting" ) );
+                plugins.addAll( PluginWrapper.addAll( utils.resolveReportPlugins( modelReportPlugins ),
+                                                      model.getId() + ".reporting" ) );
             }
             catch ( NullPointerException e )
             {
@@ -1082,8 +1096,8 @@ public class RequirePluginVersions
             try
             {
                 List<Plugin> modelPlugins = model.getBuild().getPluginManagement().getPlugins();
-                plugins.addAll( PluginWrapper.addAll( utils.resolvePlugins( modelPlugins ), model.getId()
-                    + ".build.pluginManagement.plugins" ) );
+                plugins.addAll( PluginWrapper.addAll( utils.resolvePlugins( modelPlugins ),
+                                                      model.getId() + ".build.pluginManagement.plugins" ) );
             }
             catch ( NullPointerException e )
             {
