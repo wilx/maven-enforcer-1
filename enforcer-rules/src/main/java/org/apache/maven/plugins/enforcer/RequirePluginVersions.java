@@ -263,10 +263,12 @@ public class RequirePluginVersions
             List<Plugin> failures = new ArrayList<Plugin>();
             for ( Plugin plugin : allPlugins )
             {
+                log.debug( "hasValidVersionSpecified(1): " + plugin.getGroupId() + ":" + plugin.getArtifactId() + ":"
+                    + plugin.getVersion() );
                 if ( !hasValidVersionSpecified( helper, plugin, pluginWrappers ) )
                 {
-                    log.debug( "hasValidVersionSpecified(): " + plugin.getGroupId() + ":" + plugin.getArtifactId() + ":"
-                        + plugin.getVersion() );
+                    log.debug( "hasValidVersionSpecified(1): " + plugin.getGroupId() + ":" + plugin.getArtifactId()
+                        + ":" + plugin.getVersion() );
                     failures.add( plugin );
                 }
             }
@@ -659,7 +661,7 @@ public class RequirePluginVersions
 
                 if ( StringUtils.isNotEmpty( version ) && !StringUtils.isWhitespace( version ) )
                 {
-
+                    log.debug( "checking for notEmpty and notIsWhiespace(): " + version );
                     if ( banRelease && version.equals( "RELEASE" ) )
                     {
                         return false;
