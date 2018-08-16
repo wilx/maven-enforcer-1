@@ -1,8 +1,5 @@
 package org.apache.maven.plugins.enforcer;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -31,7 +28,6 @@ import java.util.Set;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleHelper;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.apache.maven.plugins.enforcer.utils.PluginWrapper;
 
@@ -86,8 +82,6 @@ public class TestRequirePluginVersions
 
 
         EnforcerRuleHelper helper = EnforcerTestUtils.getHelper();
-        Log log = mock( Log.class );
-        when( helper.getLog() ).thenReturn( log );
 
         assertTrue( rule.hasValidVersionSpecified( helper, source, pluginWrappers ) );
 
@@ -151,8 +145,6 @@ public class TestRequirePluginVersions
         rule.setBanSnapshots( false );
 
         EnforcerRuleHelper helper = EnforcerTestUtils.getHelper( true );
-        Log log = mock( Log.class );
-        when( helper.getLog() ).thenReturn( log );
 
         source.setArtifactId( "a-artifact" );
         assertTrue( rule.hasValidVersionSpecified( helper, source, pluginWrappers ) );
