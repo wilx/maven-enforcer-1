@@ -19,9 +19,10 @@ package org.apache.maven.plugins.enforcer;
  * under the License.
  */
 
-import junit.framework.TestCase;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleException;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleHelper;
+
+import junit.framework.TestCase;
 
 /**
  * Unit test for {@link RequireEnvironmentVariable}}
@@ -75,7 +76,7 @@ public class TestRequireEnvironmentVariable
      *
      * @throws EnforcerRuleException the enforcer rule exception
      */
-    public void testRuleWithRegex()
+    public void testRuleWithRegexNot()
         throws EnforcerRuleException
     {
         EnforcerRuleHelper helper = EnforcerTestUtils.getHelper();
@@ -96,6 +97,21 @@ public class TestRequireEnvironmentVariable
             // expected to catch this.
         }
 
+    }
+
+    /**
+     * Test rule with regex.
+     *
+     * @throws EnforcerRuleException the enforcer rule exception
+     */
+    public void testRuleWithRegex()
+        throws EnforcerRuleException
+    {
+        EnforcerRuleHelper helper = EnforcerTestUtils.getHelper();
+
+        RequireEnvironmentVariable rule = new RequireEnvironmentVariable();
+        rule.setVariableName( "PATH" );
+
         // can't really predict what a PATH will looks like, just enforce it ain't empty
         rule.setRegex( ".{1,}" );
         try
@@ -104,8 +120,32 @@ public class TestRequireEnvironmentVariable
         }
         catch ( EnforcerRuleException e )
         {
-            fail( "This should not throw an exception" );
+            fail( "This should not throw an exception " + e.getMessage() );
         }
     }
 
+    /**
+     * Test rule with regex.
+     *
+     * @throws EnforcerRuleException the enforcer rule exception
+     */
+    public void testRuleWithRegexDifferent()
+        throws EnforcerRuleException
+    {
+        EnforcerRuleHelper helper = EnforcerTestUtils.getHelper();
+
+        RequireEnvironmentVariable rule = new RequireEnvironmentVariable();
+        rule.setVariableName( "PATH" );
+
+        // can't really predict what a PATH will looks like, just enforce it ain't empty
+        rule.setRegex( ".+" );
+        try
+        {
+            rule.execute( helper );
+        }
+        catch ( EnforcerRuleException e )
+        {
+            fail( "This should not throw an exception " + e.getMessage() );
+        }
+    }
 }
