@@ -644,8 +644,7 @@ public class RequirePluginVersions
         for ( PluginWrapper plugin : pluginWrappers )
         {
             // find the matching plugin entry
-            if ( source.getArtifactId().equals( plugin.getArtifactId() )
-                && source.getGroupId().equals( plugin.getGroupId() ) )
+            if ( isMatchingPlugin( source, plugin ) )
             {
                 found = true;
                 // found the entry. now see if the version is specified
@@ -659,7 +658,7 @@ public class RequirePluginVersions
                     return false;
                 }
 
-                if ( StringUtils.isNotEmpty( version ) && !StringUtils.isWhitespace( version ) )
+                if ( isVersion( version ) )
                 {
                     log.debug( "checking for notEmpty and notIsWhiespace(): " + version );
                     if ( banRelease && version.equals( "RELEASE" ) )
@@ -695,6 +694,17 @@ public class RequirePluginVersions
             log.debug( "plugin " + source.getGroupId() + ":" + source.getArtifactId() + " not found" );
         }
         return status;
+    }
+
+    private boolean isVersion( String version )
+    {
+        return StringUtils.isNotEmpty( version ) && !StringUtils.isWhitespace( version );
+    }
+
+    private boolean isMatchingPlugin( Plugin source, PluginWrapper plugin )
+    {
+        return source.getArtifactId().equals( plugin.getArtifactId() )
+            && source.getGroupId().equals( plugin.getGroupId() );
     }
 
     /**
@@ -1057,7 +1067,6 @@ public class RequirePluginVersions
     protected List<PluginWrapper> getAllPluginEntries( MavenProject project )
         throws ArtifactResolutionException, ArtifactNotFoundException, IOException, XmlPullParserException
     {
-        List<PluginWrapper> plugins = new ArrayList<PluginWrapper>();
         // get all the pom models
 
         List<Model> models = new ArrayList<Model>();
@@ -1067,6 +1076,8 @@ public class RequirePluginVersions
         {
             models.add( mavenProject.getOriginalModel() );
         }
+
+        List<PluginWrapper> plugins = new ArrayList<PluginWrapper>();
 
         // now find all the plugin entries, either in
         // build.plugins or build.pluginManagement.plugins, profiles.plugins and reporting
