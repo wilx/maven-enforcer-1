@@ -1,5 +1,7 @@
 package org.apache.maven.plugins.enforcer;
 
+import static org.junit.Assert.fail;
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -21,8 +23,7 @@ package org.apache.maven.plugins.enforcer;
 
 import org.apache.maven.enforcer.rule.api.EnforcerRuleException;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleHelper;
-
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * Unit test for {@link RequireEnvironmentVariable}}
@@ -30,7 +31,6 @@ import junit.framework.TestCase;
  * @author <a href='mailto:marvin[at]marvinformatics[dot]com'>Marvin Froeder</a>
  */
 public class TestRequireEnvironmentVariable
-    extends TestCase
 {
 
     /**
@@ -38,6 +38,7 @@ public class TestRequireEnvironmentVariable
      *
      * @throws EnforcerRuleException the enforcer rule exception
      */
+		@Test
     public void testRule()
         throws EnforcerRuleException
     {
@@ -76,6 +77,7 @@ public class TestRequireEnvironmentVariable
      *
      * @throws EnforcerRuleException the enforcer rule exception
      */
+		@Test
     public void testRuleWithRegexNot()
         throws EnforcerRuleException
     {
@@ -104,6 +106,7 @@ public class TestRequireEnvironmentVariable
      *
      * @throws EnforcerRuleException the enforcer rule exception
      */
+		@Test
     public void testRuleWithRegex()
         throws EnforcerRuleException
     {
@@ -129,6 +132,7 @@ public class TestRequireEnvironmentVariable
      *
      * @throws EnforcerRuleException the enforcer rule exception
      */
+		@Test
     public void testRuleWithRegexDifferent()
         throws EnforcerRuleException
     {
