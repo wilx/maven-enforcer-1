@@ -123,7 +123,7 @@ public class TestRequireEnvironmentVariable
         }
         catch ( EnforcerRuleException e )
         {
-            fail( "This should not throw an exception " + e.getMessage() );
+            fail( "This should not throw an exception " + e.getMessage() + " cause:" + e.getCause() );
         }
     }
 
@@ -149,7 +149,7 @@ public class TestRequireEnvironmentVariable
         }
         catch ( EnforcerRuleException e )
         {
-            fail( "This should not throw an exception " + e.getMessage() );
+            fail( "This should not throw an exception " + e.getMessage() + " cause:" + e.getCause() );
         }
     }
 }
